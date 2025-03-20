@@ -12,15 +12,6 @@ on:
     paths:
       - terraform/**
 
-env:
-# Credentials for deployment to AWS
-AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }} 
-AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-# S3 bucket for terraform state
-BUCKET_TF_STATE: ${{ secrets.BUCKET_TF_STATE }}
-AWS_REGION: us-east-2
-EKS_CLUSTER: vprofile-eks
-
 jobs:
   terraform:
     name: "Apply terraform code changes"
@@ -29,6 +20,15 @@ jobs:
       run:
         shell: bash
         working-directory: ./terraform
+
+  env:
+    # Credentials for deployment to AWS
+    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }} 
+    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    # S3 bucket for terraform state
+    BUCKET_TF_STATE: ${{ secrets.BUCKET_TF_STATE }}
+    AWS_REGION: us-east-2
+    EKS_CLUSTER: vprofile-eks
         
     steps:
       - name: Checkout source code
@@ -41,7 +41,7 @@ jobs:
 
       - name: Terraform init
         id: init
-        run: terraform_init_backend_config="bucket=$BUCKET_TF_STATE"
+        run: terraform init fig="bucket=$BUCKET_TF_STATE"
 
       - name: Terraform format
         id: fmt
@@ -57,5 +57,5 @@ jobs:
         continue-on-error: true
 
       - name: Terraform plan status  # Exit the execution if anithing fail
-        if: steps.plan.outcome == 'failure'
+        if: failure()
         run: exit 1
