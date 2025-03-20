@@ -57,5 +57,5 @@ jobs:
         continue-on-error: true
 
       - name: Terraform plan status  # Exit the execution if anithing fail
-        if: failure
+        if: failure()
         run: exit 1
